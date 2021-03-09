@@ -1,17 +1,16 @@
-<div class="grid u-mb-2">
-    <div class="grid-xs-12">
-        <table class="table mod-guide-todo-list">
+<div class="o-grid modularity-guide-todos js-modularity-guide-todos">
+    <div class="o-grid-12">
+        <table class="table mod-guide-todo-list js-modularity-guide-todos__table">
             <thead>
                 <tr>
-                    <th class="text-center print-only" width="20"><?php _e('Done', 'modularity-guides'); ?></th>
-                    <th><?php _e('Title', 'modularity-guides'); ?></th>
-                    <th><?php _e('Link', 'modularity-guides'); ?></th>
+                    <th>{{_e('Title', 'modularity-guides')}}</th>
+                    <th>{{_e('Link', 'modularity-guides')}}</th>
                 </tr>
             </thead>
             <tbody>
+            <input type="hidden" class="g-recaptcha-response" name="g-recaptcha-response" value="" />
             @foreach ($content['list_items'] as $item)
                 <tr {!! isset($item['toggle_key']) && !empty($item['toggle_key']) ? 'data-mod-guide-toggle-key-content="' . $item['toggle_key'] . '"' : '' !!}>
-                    <td class="text-center print-only"><span class="mod-guide-todo-check"></span></td>
                     <td>{{ $item['title'] }}</td>
                     <td>
                         @if (isset($item['link_url']) && !empty($item['link_url']))
@@ -24,44 +23,104 @@
             <tfoot class="hidden-print">
                 <tr>
                     <th colspan="3">
-                        <a href="#modal-email-todo" class="btn btn-primary btn-sm pricon pricon-email pricon-space-right"><?php _e('Send as email', 'modularity-guides'); ?></button>
+                        @button( [
+                            'href' => '',
+                            'icon' => 'mail',
+                            'color' => 'primary',
+                            'style' => 'filled',
+                            'reversePositions' => true,
+                            'size' => 'sm',
+                            'text' => __('Send as email', 'modularity-guides'),
+                            'attributeList' => [
+                                'data-open' => "mod-guide-todo-".$stepId,
+                            ],
+                            'classList' => ['js-modularity-guide-todos__modal-trigger']
+                        ])
+                        @endbutton
                     </th>
                 </tr>
             </tfoot>
         </table>
-    </div>
 
-    <div id="modal-email-todo" class="modal modal-backdrop-2 modal-xs" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <form>
-                <div class="modal-header">
-                    <a class="btn btn-close" href="#close"></a>
-                    <h2 class="modal-title"><?php _e('Send todo-list as email', 'modularity-guides'); ?></h2>
-                </div>
-                <div class="modal-body">
-                    <article>
-                        <div class="grid">
-                            <div class="grid-md-12">
-                                <div class="form-group">
-                                    <label for="send-todo-email"><?php _e('Email', 'modularity-guides'); ?></label>
-                                    <input type="email" name="email" id="send-todo-email" required>
-                                </div>
+        @modal([
+            'heading' => __('Send todo-list as email', 'modularity-guides'),
+            'isPanel' => false,
+            'id' => "mod-guide-todo-".$stepId,
+            'overlay' => 'dark',
+            'animation' => 'scale-up',
+            'size' => 'sm',
+            'classList' => ['js-modularity-guide-todos__modal'],
+            'attributeList' => [
+                'tabindex' => "-1",
+                'role' => "dialog",
+                'aria-hidden' => "true"
+            ]
+        ])
+            @form([
+                'method' => 'POST',
+                'classList' => ['js-modularity-guide-todos__form']
+            ])
+                <div class="o-grid o-grid--no-margin">
+                    <div class="o-grid-12 u-margin__bottom--3">
+                        @field([
+                            'type' => 'text',
+                            'id' => 'send-todo-email',
+                            'attributeList' => [
+                                'type' => 'email',
+                                'name' => 'email',
+                                'pattern' => '^[^@]+@[^@]+\.[^@]+$',
+                                'autocomplete' => 'e-mail',
+                                'data-invalid-message' => "You need to add a valid E-mail!"
+                            ],
+                            'label' => __('Email', 'modularity-guides'),
+                            'required' => true,
+                        ])
+                        @endfield
+                        
+                    </div>
+                    
+                    <div class="o-grid-12">
+                        <div class="o-grid o-grid--no-margin">
+                            <div class="o-grid-fit">
+                                @button([
+                                    'text' => __('Send', 'modularity-guides'),
+                                    'color' => 'primary',
+                                    'style' => 'filled',
+                                    'type' => 'submit'
+                                ])
+                                @endbutton
+                            </div>
+                            <div class="o-grid-fit">
+                                @loader([
+                                    'size' => 'sm',
+                                    'classList' => []
+                                ])
+                                @endloader
                             </div>
                         </div>
-                        @if(!is_user_logged_in() && $municipio)
-                            <div class="grid">
-                                <div class="grid-md-12">
-                                    <div class="g-recaptcha" data-sitekey="{{ $g_recaptcha_key }}"></div>
-                                </div>
-                            </div>
-                        @endif
-                    </article>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <input type="submit" class="btn btn-primary" value="<?php _e('Send', 'modularity-guides'); ?>">
-                </div>
-            </form>
-        </div>
-        <a href="#close" class="backdrop"></a>
+            @endform
+            
+            @slot('bottom')
+                @notice([
+                    'type' => 'success',
+                    'message' => [
+                        'text' => 'Tellus Sem Lorem Malesuada Ipsum',
+                        'size' => 'sm'
+                    ],
+                    'classList' => ['js-modularity-guide-todos__notice', 'u-display--none'],
+                    'icon' => [
+                        'name' => 'check',
+                        'size' => 'md',
+                        'color' => 'white'
+                    ]
+                ])
+                @endnotice
+            @endslot
+
+        @endmodal
+
     </div>
 </div>
+

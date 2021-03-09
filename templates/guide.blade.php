@@ -1,37 +1,59 @@
-<?php
-$i = 1;
-$j = 1;
-?>
+@php
+    $j = 1;
+@endphp
 
-<div class="box no-padding">
-    <div class="accordion accordion-list">
-        @if (count($steps) > 0)
-        @foreach ($steps as $step)
-        <section class="accordion-section">
-            <input type="radio" name="active-section" id="mod-guide-{{ $ID }}-{{ $i }}" {{ $i === 1 ? 'checked' : '' }}>
-            <span class="accordion-toggle">
-                <h4><span class="label label-number"><em>{{ $i }}</em></span> {{ $step['title'] }}</h4>
-            </span>
-            <div class="accordion-content">
-                @if (isset($step['content']) && count($step['content']) > 0)
-                    @foreach ($step['content'] as $content)
-                        @include('partials.' . $content['acf_fc_layout'], array('stepId' => $j))
-                        <?php $j++; ?>
-                    @endforeach
-                @endif
-                <div class="accordion-nav clearfix">
-                    @if ($i > 1)
-                        <label class="btn pull-left" data-accordion-nav="prev" for="mod-guide-{{ $ID }}-{{ $i-1 }}"><i class="fa fa-caret-left"></i> <?php _e('Previous', 'modularity-guides'); ?></label>
+@if(!is_user_logged_in())
+    <input type="hidden" class="g-recaptcha-response" name="g-recaptcha-response" value="" />
+@endif
+
+<div class="mod-guide-wrapper js-modularity-guide">
+    @if (count($steps) > 0)
+        @accordion([])
+            @foreach ($steps as $step)
+                @accordion__item([
+                    'heading' => $loop->iteration . '. '  . $step['title'],
+                    'classList' => ['js-modularity-guide__section'],
+                    'attributeList' => ['data-guide-step' => $loop->iteration]
+                ])
+
+                    @if (isset($step['content']) && !empty($step['content']))
+                        @foreach ($step['content'] as $content)
+                            @include('partials.' . $content['acf_fc_layout'], array('stepId' => $j))
+                            @php $j++; @endphp
+                        @endforeach
                     @endif
 
-                    @if (count($steps) > 1 && $i !== count($steps))
-                    <label class="btn btn-primary pull-right" data-accordion-nav="next" for="mod-guide-{{ $ID }}-{{ $i+1 }}"><?php _e('Next', 'modularity-guides'); ?> <i class="fa fa-caret-right"></i></label>
-                    @endif
-                </div>
-            </div>
-        </section>
-        <?php $i++; ?>
-        @endforeach
-        @endif
-    </div>
+                    <div class="guide-pagination">
+                        <div class="o-grid">
+                            <div class="o-grid-6">
+                                @if (!$loop->first)
+                                    @button([
+                                        'icon' => 'keyboard_arrow_left',
+                                        'reversePositions' => true,
+                                        'text' => __('Previous', 'modularity-guides'),
+                                        'style' => 'filled',
+                                        'classList' => ['prevNext','prevStep', 'js-modularity-guide__prev']
+                                    ])
+                                    @endbutton
+                                @endif
+                            </div>
+                            <div class="o-grid-6 u-text-align--right">
+                                @if (!$loop->last)
+                                    @button([
+                                        'icon' => "keyboard_arrow_right",
+                                        'reversePositions' => false,
+                                        'text' => __('Next', 'modularity-guides'),
+                                        'style' => 'filled',
+                                        'color' => 'primary',
+                                        'classList' => ['prevNext','nextStep', 'js-modularity-guide__next'],
+                                    ])
+                                    @endbutton
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endaccordion__item
+            @endforeach
+        @endaccordion
+    @endif
 </div>
